@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Camera" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JCk-Lg-Vch">
+                                <rect key="frame" x="16" y="619" width="52" height="28"/>
+                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
+                                <state key="normal" title="Focus"/>
+                                <connections>
+                                    <action selector="lockButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="vRz-bf-sVn"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JTQ-OQ-qwT">
+                                <rect key="frame" x="76" y="619" width="55" height="28"/>
+                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
+                                <state key="normal" title="Preset"/>
+                                <connections>
+                                    <action selector="lockButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oQx-VQ-xVV"/>
+                                    <action selector="presetButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="b4b-mY-Q51"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="JCk-Lg-Vch" secondAttribute="bottom" constant="20" id="6Ln-mZ-NVA"/>
+                            <constraint firstItem="JCk-Lg-Vch" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="Ra4-WB-X3p"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="JTQ-OQ-qwT" secondAttribute="bottom" constant="20" id="eEC-lh-i1X"/>
+                            <constraint firstItem="JTQ-OQ-qwT" firstAttribute="leading" secondItem="JCk-Lg-Vch" secondAttribute="trailing" constant="8" id="ewa-V4-r6c"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="lockFocusButton" destination="JCk-Lg-Vch" id="sTo-Zc-dln"/>
+                        <outlet property="pickerView" destination="NHr-0Q-E7n" id="q4G-gL-lOJ"/>
+                        <outlet property="pickerViewContainer" destination="IMP-Yb-bj7" id="F4W-VI-wL1"/>
+                        <outlet property="presetButton" destination="JTQ-OQ-qwT" id="cMB-Sh-sdV"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <view contentMode="scaleToFill" id="IMP-Yb-bj7">
+                    <rect key="frame" x="0.0" y="0.0" width="382" height="261"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <pickerView contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NHr-0Q-E7n">
+                            <rect key="frame" x="0.0" y="44" width="382" height="217"/>
+                        </pickerView>
+                        <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="moD-yT-1DN">
+                            <rect key="frame" x="0.0" y="0.0" width="382" height="44"/>
+                            <items>
+                                <barButtonItem title="Cancel" id="kjs-vr-Vlg">
+                                    <connections>
+                                        <action selector="cancelButtonTapped:" destination="BYZ-38-t0r" id="rFT-pk-eLt"/>
+                                    </connections>
+                                </barButtonItem>
+                                <barButtonItem style="plain" systemItem="flexibleSpace" id="WwL-gh-0E5"/>
+                                <barButtonItem systemItem="done" id="bcT-pS-55o">
+                                    <connections>
+                                        <action selector="doneButtonTapped:" destination="BYZ-38-t0r" id="qB7-Iy-yK0"/>
+                                    </connections>
+                                </barButtonItem>
+                            </items>
+                        </toolbar>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="moD-yT-1DN" firstAttribute="top" secondItem="IMP-Yb-bj7" secondAttribute="top" id="59Y-dF-We0"/>
+                        <constraint firstItem="moD-yT-1DN" firstAttribute="leading" secondItem="IMP-Yb-bj7" secondAttribute="leading" id="Wvt-0C-Nl8"/>
+                        <constraint firstAttribute="bottom" secondItem="NHr-0Q-E7n" secondAttribute="bottom" id="bqX-GJ-DOR"/>
+                        <constraint firstAttribute="trailing" secondItem="moD-yT-1DN" secondAttribute="trailing" id="mtQ-a9-FEw"/>
+                        <constraint firstItem="NHr-0Q-E7n" firstAttribute="leading" secondItem="IMP-Yb-bj7" secondAttribute="leading" id="o2K-J2-8Tx"/>
+                        <constraint firstAttribute="trailing" secondItem="NHr-0Q-E7n" secondAttribute="trailing" id="rI3-AQ-2F1"/>
+                        <constraint firstItem="NHr-0Q-E7n" firstAttribute="top" secondItem="moD-yT-1DN" secondAttribute="bottom" id="udp-NE-gkn"/>
+                    </constraints>
+                </view>
+            </objects>
+        </scene>
+    </scenes>
+</document>
