@@ -35,20 +35,30 @@
                                 <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                 <state key="normal" title="Preset"/>
                                 <connections>
-                                    <action selector="lockButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oQx-VQ-xVV"/>
                                     <action selector="presetButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="b4b-mY-Q51"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnz-4k-52A">
+                                <rect key="frame" x="139" y="619" width="65" height="28"/>
+                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
+                                <state key="normal" title="Capture"/>
+                                <connections>
+                                    <action selector="captureButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="U3L-hv-0Gb"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="JCk-Lg-Vch" secondAttribute="bottom" constant="20" id="6Ln-mZ-NVA"/>
+                            <constraint firstItem="Gnz-4k-52A" firstAttribute="leading" secondItem="JTQ-OQ-qwT" secondAttribute="trailing" constant="8" id="GdF-2t-4aT"/>
                             <constraint firstItem="JCk-Lg-Vch" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="Ra4-WB-X3p"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Gnz-4k-52A" secondAttribute="bottom" constant="20" id="ZcB-eq-G8z"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="JTQ-OQ-qwT" secondAttribute="bottom" constant="20" id="eEC-lh-i1X"/>
                             <constraint firstItem="JTQ-OQ-qwT" firstAttribute="leading" secondItem="JCk-Lg-Vch" secondAttribute="trailing" constant="8" id="ewa-V4-r6c"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="captureButton" destination="Gnz-4k-52A" id="acY-MV-Jwo"/>
                         <outlet property="lockFocusButton" destination="JCk-Lg-Vch" id="sTo-Zc-dln"/>
                         <outlet property="pickerView" destination="NHr-0Q-E7n" id="q4G-gL-lOJ"/>
                         <outlet property="pickerViewContainer" destination="IMP-Yb-bj7" id="F4W-VI-wL1"/>

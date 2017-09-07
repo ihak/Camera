@@ -142,6 +142,7 @@ class ViewController: UIViewController {
     @IBOutlet var pickerViewContainer: UIView!
     @IBOutlet var pickerView: UIPickerView!
     
+    @IBOutlet weak var captureButton: UIButton!
     var pickerViewBottomConstraint: NSLayoutConstraint?
     
     let focusModes: [AVCaptureFocusMode]  = [.locked, .autoFocus, .continuousAutoFocus]
@@ -152,13 +153,18 @@ class ViewController: UIViewController {
     
     var pickerType = PickerType.focus
     
+    var videoPreviewLayer: AVCaptureVideoPreviewLayer!
+    
+    var input: AVCaptureDeviceInput!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        if let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession) {
-            previewLayer.frame = self.view.bounds
-            self.view.layer.insertSublayer(previewLayer, at: 0)
-        }
+        videoPreviewLayer = AVCaptureVideoPreviewLayer(sessionWithNoConnection: captureSession)
+        videoPreviewLayer.frame = self.view.bounds
+        videoPreviewLayer.videoGravity = AVLayerVideoGravityResize
+        self.view.layer.insertSublayer(videoPreviewLayer, at: 0)
+        
         captureSession.startRunning()
         
         applyTheme(to: lockFocusButton)
@@ -174,7 +180,6 @@ class ViewController: UIViewController {
             print("Capture Session is running")
         }
         
-        print("inputs: \(self.captureSession.inputs)")
         
         // AVCaptureDevice.devices has been depricated
 //        print("Capture devices: \(AVCaptureDevice.devices())")
@@ -191,11 +196,25 @@ class ViewController: UIViewController {
                     device.autoFocusRangeRestriction = .near
                     device.unlockForConfiguration()
                     if let input = try? AVCaptureDeviceInput(device: device) {
-                        captureSession.addInput(input)
+                        self.input = input
+                        captureSession.addInputWithNoConnections(input)
+                        
+//                        AVCaptureInputPort
+                        
+                        for port in input.ports {
+                            if let port = port as? AVCaptureInputPort {
+                                if port.mediaType == AVMediaTypeVideo {
+                                    let connection = AVCaptureConnection(inputPort: port, videoPreviewLayer: videoPreviewLayer)
+                                    connection?.videoOrientation = .portraitUpsideDown
+                                    self.captureSession.add(connection)
+                                }
+                            }
+                        }
                     }
                     self.currentDevice = device
                 }
             }
+            
         }
         
         captureSession.beginConfiguration()
@@ -237,6 +256,46 @@ class ViewController: UIViewController {
         removePickerView()
     }
 
+    @IBAction func captureButtonTapped(_ sender: UIButton) {
+        let photoOutput = AVCapturePhotoOutput()
+        
+        // Use device discovery session instead
+        let deviceDiscoverySession = AVCaptureDeviceDiscoverySession(deviceTypes: [.builtInMicrophone, .builtInWideAngleCamera], mediaType: nil, position: .back)
+        print("devices: \(String(describing: deviceDiscoverySession?.devices))")
+        
+        if let devices = deviceDiscoverySession?.devices {
+            for device in devices {
+                if device.hasMediaType(AVMediaTypeVideo) {
+                    try? device.lockForConfiguration()
+                    device.focusMode = .continuousAutoFocus
+                    device.autoFocusRangeRestriction = .near
+                    device.unlockForConfiguration()
+                    if let input = try? AVCaptureDeviceInput(device: device) {
+                        self.input = input
+//                        captureSession.addInputWithNoConnections(input)
+                        
+                        //                        AVCaptureInputPort
+                        
+                        for port in input.ports {
+                            if let port = port as? AVCaptureInputPort {
+                                if port.mediaType == AVMediaTypeVideo {
+                                    let connection = AVCaptureConnection(inputPorts: [port], output: photoOutput)
+                                    connection?.videoOrientation = .portraitUpsideDown
+                                    
+                                    if self.captureSession.canAdd(connection) {
+                                        self.captureSession.add(connection)
+                                        photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    self.currentDevice = device
+                }
+            }
+        }
+    }
+    
     func changeFocus(mode: AVCaptureFocusMode) {
         if let currentDevice = self.currentDevice {
             do {
@@ -346,5 +405,45 @@ extension ViewController: UIPickerViewDataSource, UIPickerViewDelegate {
         }
         
         return title
+    }
+}
+
+extension ViewController: AVCapturePhotoCaptureDelegate {
+    func capture(_ captureOutput: AVCapturePhotoOutput, willBeginCaptureForResolvedSettings resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        print("begin capture")
+    }
+    
+    func capture(_ captureOutput: AVCapturePhotoOutput, willCapturePhotoForResolvedSettings resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        print("will capture")
+    }
+    
+    func capture(_ captureOutput: AVCapturePhotoOutput, didCapturePhotoForResolvedSettings resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        print("did capture")
+    }
+    
+    func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
+        //
+        if let error = error {
+            print(error.localizedDescription)
+        }
+        else {
+            if let sampleBuffer = photoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: nil) {
+                let image = UIImage(data: dataImage)
+                print(image)
+            }
+        }
+    }
+    
+    func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingRawPhotoSampleBuffer rawSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
+        if let photoSampleBuffer = rawSampleBuffer {
+            let itemCount = CMSampleBufferGetNumSamples(photoSampleBuffer)
+            
+            let imageBuffer: CVImageBuffer = CMSampleBufferGetImageBuffer(photoSampleBuffer)!
+            if let imgBuffer = CMSampleBufferGetImageBuffer(photoSampleBuffer) {
+                let displaySize = CVImageBufferGetDisplaySize(imgBuffer)
+                let encodedSize = CVImageBufferGetEncodedSize(imgBuffer)
+            }
+            
+        }
     }
 }
