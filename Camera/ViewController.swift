@@ -229,6 +229,14 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "SegueShowImagePreview" {
+            if let vc = segue.destination as? ImagePreviewVC {
+                vc.image = sender as? UIImage
+            }
+        }
+    }
+    
     @IBAction func lockButtonTapped(_ sender: Any) {
         pickerType = .focus
         addPickerView()
@@ -258,42 +266,63 @@ class ViewController: UIViewController {
 
     @IBAction func captureButtonTapped(_ sender: UIButton) {
         let photoOutput = AVCapturePhotoOutput()
+        if self.captureSession.canAddOutput(photoOutput) {
+            self.captureSession.addOutputWithNoConnections(photoOutput)
+        }
         
-        // Use device discovery session instead
-        let deviceDiscoverySession = AVCaptureDeviceDiscoverySession(deviceTypes: [.builtInMicrophone, .builtInWideAngleCamera], mediaType: nil, position: .back)
-        print("devices: \(String(describing: deviceDiscoverySession?.devices))")
-        
-        if let devices = deviceDiscoverySession?.devices {
-            for device in devices {
-                if device.hasMediaType(AVMediaTypeVideo) {
-                    try? device.lockForConfiguration()
-                    device.focusMode = .continuousAutoFocus
-                    device.autoFocusRangeRestriction = .near
-                    device.unlockForConfiguration()
-                    if let input = try? AVCaptureDeviceInput(device: device) {
-                        self.input = input
-//                        captureSession.addInputWithNoConnections(input)
-                        
-                        //                        AVCaptureInputPort
-                        
-                        for port in input.ports {
-                            if let port = port as? AVCaptureInputPort {
-                                if port.mediaType == AVMediaTypeVideo {
-                                    let connection = AVCaptureConnection(inputPorts: [port], output: photoOutput)
-                                    connection?.videoOrientation = .portraitUpsideDown
-                                    
-                                    if self.captureSession.canAdd(connection) {
-                                        self.captureSession.add(connection)
-                                        photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
-                                    }
-                                }
-                            }
-                        }
+        for port in input.ports {
+            if let port = port as? AVCaptureInputPort {
+                if port.mediaType == AVMediaTypeVideo {
+                    let connection = AVCaptureConnection(inputPorts: [port], output: photoOutput)
+                    connection?.videoOrientation = .portrait
+                    
+                    if self.captureSession.canAdd(connection) {
+                        self.captureSession.add(connection)
+                        let photoSettings = AVCapturePhotoSettings()
+                        photoSettings.isAutoStillImageStabilizationEnabled = true
+                        photoOutput.capturePhoto(with: photoSettings, delegate: self)
                     }
-                    self.currentDevice = device
                 }
             }
         }
+        
+
+        
+        // Use device discovery session instead
+//        let deviceDiscoverySession = AVCaptureDeviceDiscoverySession(deviceTypes: [.builtInMicrophone, .builtInWideAngleCamera], mediaType: nil, position: .back)
+//        print("devices: \(String(describing: deviceDiscoverySession?.devices))")
+//        
+//        if let devices = deviceDiscoverySession?.devices {
+//            for device in devices {
+//                if device.hasMediaType(AVMediaTypeVideo) {
+//                    try? device.lockForConfiguration()
+//                    device.focusMode = .continuousAutoFocus
+//                    device.autoFocusRangeRestriction = .near
+//                    device.unlockForConfiguration()
+//                    if let input = try? AVCaptureDeviceInput(device: device) {
+//                        self.input = input
+//                        captureSession.addInputWithNoConnections(input)
+//                        
+//                        //                        AVCaptureInputPort
+//                        
+//                        for port in input.ports {
+//                            if let port = port as? AVCaptureInputPort {
+//                                if port.mediaType == AVMediaTypeVideo {
+//                                    let connection = AVCaptureConnection(inputPorts: [port], output: photoOutput)
+//                                    connection?.videoOrientation = .portraitUpsideDown
+//                                    
+//                                    if self.captureSession.canAdd(connection) {
+//                                        self.captureSession.add(connection)
+//                                        photoOutput.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    self.currentDevice = device
+//                }
+//            }
+//        }
     }
     
     func changeFocus(mode: AVCaptureFocusMode) {
@@ -430,6 +459,10 @@ extension ViewController: AVCapturePhotoCaptureDelegate {
             if let sampleBuffer = photoSampleBuffer, let dataImage = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: nil) {
                 let image = UIImage(data: dataImage)
                 print(image)
+                
+                DispatchQueue.main.async {
+                    self.moveToImagePreviewVC(withImage: image!)
+                }
             }
         }
     }
@@ -445,5 +478,9 @@ extension ViewController: AVCapturePhotoCaptureDelegate {
             }
             
         }
+    }
+    
+    func moveToImagePreviewVC(withImage image:UIImage) {
+        self.performSegue(withIdentifier: "SegueShowImagePreview", sender: image)
     }
 }
